@@ -114,8 +114,14 @@ def add_cors_headers(response):
 
 
 def get_param(name):
-    """从 JSON body 中读取参数"""
-    data = request.get_json(silent=True)
+    """从 JSON body 中读取参数（直接 json.loads 解析，不依赖 Content-Type）"""
+    raw = request.get_data(as_text=True)
+    if not raw:
+        return None
+    try:
+        data = json.loads(raw)
+    except Exception:
+        return None
     if isinstance(data, dict):
         return data.get(name)
     return None
