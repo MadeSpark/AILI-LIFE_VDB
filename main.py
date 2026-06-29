@@ -2,12 +2,33 @@ import os
 import sys
 import json
 import math
+import logging
 import sqlite3
 import threading
 from array import array
+from datetime import datetime
 
 import requests
 from flask import Flask, request, jsonify
+
+# 屏蔽 Flask/Werkzeug 默认请求日志，用自定义格式替代
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
+
+
+def log(msg):
+    """带时间戳的控制台输出"""
+    ts = datetime.now().strftime('%H:%M:%S')
+    print(f"[{ts}] {msg}", flush=True)
+
+
+def format_body(text):
+    """尝试格式化 JSON 为易读形式（中文不转义）"""
+    if not text:
+        return ''
+    try:
+        return json.dumps(json.loads(text), ensure_ascii=False, indent=2)
+    except Exception:
+        return text
 
 
 def get_base_dir():
@@ -105,11 +126,33 @@ def cosine_similarity(vec1, vec2):
 app = Flask(__name__)
 
 
+@app.before_request
+def log_request():
+    """记录每个请求的方法、路径和请求体"""
+    if request.method == 'OPTIONS':
+        return
+    log(f">>> {request.method} {request.path}")
+    body = request.get_data(as_text=True)
+    if body and body.strip():
+        for line in format_body(body).split('\n'):
+            log(f"    {line}")
+    else:
+        log("    (无请求体)")
+
+
 @app.after_request
-def add_cors_headers(response):
+def after_request_hook(response):
+    """记录响应状态和返回体，并添加 CORS 头"""
     response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
     response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
+    if request.method != 'OPTIONS':
+        log(f"<<< {response.status_code} {request.path}")
+        body = response.get_data(as_text=True)
+        if body and body.strip():
+            for line in format_body(body).split('\n'):
+                log(f"    {line}")
+        log("-" * 56)
     return response
 
 
