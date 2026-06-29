@@ -1,0 +1,19 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.uv-cache
+
+# Build output
+dist/
+
+# Sensitive config (contains APIKEY)
+config.json
+
+# Database
+*.db
