@@ -1,5 +1,8 @@
 {
     "数据目录": "D:\\DevelopmentFolder\\插件开发目录\\E\\插件\\AILI·LIFE\\向量数据库_Python",
+    "本地模式": "否",
+    "本地模型名称": "BAAI/bge-small-zh-v1.5",
+    "本地模型缓存目录": "",
     "HTTP端口": 4321,
     "API地址": "https://api.siliconflow.cn",
     "APIKEY": "请填写你的APIKEY",
