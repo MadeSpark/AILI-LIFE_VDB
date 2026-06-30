@@ -341,15 +341,83 @@ WinHttp.销毁 (hHttp)
 
 ### 在线模式（默认）
 
-1. 安装依赖：`uv sync`
-2. 运行服务：`uv run python main.py`
-3. 编译exe：`uv run pyinstaller --onefile --name "AI记忆数据库" --console main.py`
+在线模式使用 SiliconFlow 等 API 服务，无需本地安装大模型。
+
+1. 安装依赖：
+   ```bash
+   uv sync
+   ```
+   
+2. 运行服务：
+   ```bash
+   uv run python main.py
+   ```
+   
+3. 编译exe：
+   ```bash
+   uv run pyinstaller --onefile --name "AI记忆数据库" --console main.py
+   ```
 
 ### 本地模式
 
-1. 安装依赖：`uv sync --extra local`
-2. 配置 `"本地模式": "是"`
-3. 运行服务：`uv run python main.py`
+本地模式使用 `sentence-transformers` 加载本地嵌入模型，无需调用外部API。
+
+#### 依赖安装步骤
+
+**方法一：使用 uv 安装（推荐）**
+
+```bash
+# 安装本地模式额外依赖
+uv sync --extra local
+```
+
+**方法二：使用 pip 安装**
+
+```bash
+# 安装基础依赖
+pip install flask requests pyinstaller
+
+# 安装本地模式依赖
+pip install sentence-transformers torch transformers
+```
+
+#### 依赖版本要求
+
+| 包名 | 版本要求 | 说明 |
+|------|----------|------|
+| `sentence-transformers` | >= 3.0.1 | 嵌入模型加载和推理 |
+| `torch` | >= 2.0.0 | 深度学习框架 |
+| `transformers` | >= 4.30.0 | HuggingFace模型支持 |
+
+#### GPU 加速（可选）
+
+如果有 NVIDIA GPU，可安装 CUDA 版本的 torch 以加速推理：
+
+```bash
+# CUDA 11.8
+pip install torch --index-url https://download.pytorch.org/whl/cu118
+
+# CUDA 12.1
+pip install torch --index-url https://download.pytorch.org/whl/cu121
+```
+
+#### 运行步骤
+
+1. 安装依赖（参考上方）
+2. 修改 config.json：
+   ```json
+   {
+       "本地模式": "是",
+       "本地模型名称": "BAAI/bge-small-zh-v1.5",
+       "本地模型缓存目录": "D:\\Models"
+   }
+   ```
+3. 运行服务：
+   ```bash
+   uv run python main.py
+   ```
+
+首次运行会自动下载模型（约 100MB），下载完成后模型会缓存到指定目录。
 
 ---
 
